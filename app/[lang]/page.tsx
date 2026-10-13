@@ -1,8 +1,7 @@
 import { defaultLocale, isLocale } from "@/lib/i18n";
 
 import Hero from "@/components/Hero";
-import Metrics from "@/components/Metrics";
-import Reel from "@/components/Reel";
+import Credits from "@/components/Credits";
 import WorkGrid from "@/components/WorkGrid";
 import CaseStudy from "@/components/CaseStudy";
 import BeforeAfter from "@/components/BeforeAfter";
@@ -25,8 +24,7 @@ export default async function Page({
   return (
     <>
       <Hero locale={locale} />
-      <Metrics locale={locale} />
-      <Reel locale={locale} />
+      <Credits locale={locale} />
       <WorkGrid locale={locale} />
       <CaseStudy locale={locale} />
       <BeforeAfter locale={locale} />

@@ -63,7 +63,21 @@ H.264 MP4 is all that's needed — every current browser plays it.
 
 ## Design notes
 
+The concept is **the edit**: the page behaves like Saeed's own timeline.
+The showreel opens from a letterboxed window to full bleed as you scroll,
+a playhead and running timecode track the whole page, the work runs as a
+filmstrip that scrolls sideways, and the case-study steps stack as they pin.
+
 Worth knowing before changing anything:
+
+- **Type:** Geist for Latin, Alexandria (display) and IBM Plex Sans Arabic
+  (body) for Arabic, plus Instrument Serif italic as the accent voice.
+- **The accent voice:** wrap one word of a headline in `*asterisks*` in
+  `content/site.ts` to set it in the italic serif (English) or the accent
+  colour (Arabic). One per headline, at most.
+- **The current footage is AI-generated placeholder imagery** made into
+  slow loops so the preview doesn't look empty. Replace it with real clips
+  using the same filenames.
 
 - **The type scale lives in `app/globals.css`**, not scattered through
   components. Two sizes do most of the work. Change it in one place.
@@ -80,6 +94,14 @@ Worth knowing before changing anything:
   `prefers-reduced-motion`.
 
 ---
+
+## Preview build (plain files, any host)
+
+```bash
+STATIC_EXPORT=1 npx next build && python3 scripts/build-preview.py ../preview
+```
+
+Writes a self-contained folder that works under any sub-path with no server.
 
 ## Deploying
 

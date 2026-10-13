@@ -64,13 +64,13 @@ export default function Nav({ locale }: { locale: Locale }) {
           </nav>
 
           <div className="flex items-center gap-2">
-            <Link
+            <a
               href={`/${other}`}
               hrefLang={other}
               className="rounded-full px-3 py-1.5 text-[0.75rem] text-muted transition-colors duration-300 hover:text-fg"
             >
               {t(ui.langToggle, locale)}
-            </Link>
+            </a>
 
             <a
               href={wa}

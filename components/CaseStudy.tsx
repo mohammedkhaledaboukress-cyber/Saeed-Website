@@ -1,84 +1,80 @@
 import { type Locale, t } from "@/lib/i18n";
 import { caseStudy } from "@/content/site";
 import Reveal from "./Reveal";
+import Rich from "./Rich";
 
+/* The story nobody else can tell, told as a build: each step pins and the
+ * next one stacks over it, so the operation visibly assembles as you scroll.
+ * Pure CSS sticky — no script, nothing to fail. */
 export default function CaseStudy({ locale }: { locale: Locale }) {
   return (
-    <section
-      id="system"
-      className="scroll-mt-24 border-y hairline bg-raised/40 py-24 md:py-36"
-    >
+    <section id="system" className="scroll-mt-0 py-28 md:py-40">
       <div className="shell">
-        <Reveal>
-          <p className="eyebrow">{t(caseStudy.eyebrow, locale)}</p>
-        </Reveal>
+        <header className="grid gap-6 md:grid-cols-12 md:items-end md:gap-10">
+          <Reveal className="md:col-span-7">
+            <h2 className="h2 max-w-[15ch]">
+              <Rich text={t(caseStudy.title, locale)} />
+            </h2>
+          </Reveal>
+          <Reveal delay={100} className="md:col-span-4 md:col-start-9 md:pb-2">
+            <p className="lede">{t(caseStudy.client, locale)}</p>
+          </Reveal>
+        </header>
 
         <Reveal delay={60}>
-          <h2 className="h2 mt-5 max-w-3xl">{t(caseStudy.title, locale)}</h2>
-        </Reveal>
-
-        <Reveal delay={120}>
-          <p className="lede mt-6 max-w-xl">{t(caseStudy.client, locale)}</p>
-        </Reveal>
-
-        {/* The problem */}
-        <Reveal delay={180}>
-          <div className="mt-14 max-w-2xl border-s-2 border-accent/40 ps-6 md:mt-20">
-            <p className="eyebrow">{t(caseStudy.problem.label, locale)}</p>
-            <p className="body mt-3 text-fg/80">
-              {t(caseStudy.problem.body, locale)}
-            </p>
-          </div>
-        </Reveal>
-
-        {/* What he built */}
-        <div className="mt-14 grid gap-x-10 gap-y-10 md:mt-20 md:grid-cols-2 lg:grid-cols-4">
-          {caseStudy.steps.map((s, i) => (
-            <Reveal key={s.n} delay={i * 80}>
-              <div className="flex flex-col gap-3 border-t hairline pt-5">
-                <p className="num text-[0.75rem] text-accent">{s.n}</p>
-                <h3 className="h3">{t(s.title, locale)}</h3>
-                <p className="text-[0.8125rem] leading-relaxed text-muted">
-                  {t(s.body, locale)}
-                </p>
-              </div>
-            </Reveal>
-          ))}
-        </div>
-
-        {/* Results */}
-        <div className="mt-16 grid gap-8 md:mt-24 md:grid-cols-3">
-          {caseStudy.results.map((r, i) => (
-            <Reveal key={i} delay={i * 90}>
-              <div className="rounded-xl border hairline bg-ink/40 p-6 md:p-7">
-                <div className="flex items-baseline gap-3">
-                  <span className="num text-xl text-faint line-through decoration-faint/60">
-                    {t(r.before, locale)}
-                  </span>
-                  <svg
-                    viewBox="0 0 24 24"
-                    className="h-3.5 w-3.5 shrink-0 fill-faint rtl:rotate-180"
-                    aria-hidden
-                  >
-                    <path d="M13 5l7 7-7 7v-5H4v-4h9z" />
-                  </svg>
-                  <span className="num text-4xl text-accent md:text-5xl">
-                    {t(r.after, locale)}
-                  </span>
-                </div>
-                <p className="mt-4 text-[0.8125rem] text-muted">
-                  {t(r.label, locale)}
-                </p>
-              </div>
-            </Reveal>
-          ))}
-        </div>
-
-        <Reveal delay={120}>
-          <p className="mt-10 max-w-xl text-[0.75rem] leading-relaxed text-faint">
-            {t(caseStudy.note, locale)}
+          <p className="mt-16 max-w-[36ch] text-[clamp(1.35rem,2.6vw,2.1rem)] leading-[1.35] tracking-[-0.02em] text-fg/90 md:mt-24 rtl:tracking-normal">
+            {t(caseStudy.problem.body, locale)}
           </p>
         </Reveal>
+
+        <ol className="relative mt-16 md:mt-24">
+          {caseStudy.steps.map((s, i) => (
+            <li
+              key={s.n}
+              className="sticky mb-6 md:mb-10"
+              style={{ top: `calc(5.5rem + ${i * 1.5}rem)` }}
+            >
+              <div
+                className="grid min-h-[44svh] gap-8 rounded-2xl p-7 shadow-[0_-24px_48px_-24px_rgba(0,0,0,0.9)] md:grid-cols-12 md:items-end md:p-12"
+                style={{
+                  background: `color-mix(in oklab, var(--color-raised-2) ${55 + i * 15}%, var(--color-ink))`,
+                }}
+              >
+                <p className="num font-serif text-[clamp(4rem,10vw,8.5rem)] leading-[0.8] text-accent italic md:col-span-5 rtl:font-[family-name:var(--font-arabic-display)] rtl:not-italic">
+                  {s.n}
+                </p>
+                <div className="flex flex-col gap-3 md:col-span-6 md:col-start-7">
+                  <h3 className="text-[clamp(1.5rem,2.6vw,2.25rem)] leading-tight font-semibold tracking-[-0.02em] rtl:tracking-normal">
+                    {t(s.title, locale)}
+                  </h3>
+                  <p className="body max-w-[40ch] text-[1.0625rem]">{t(s.body, locale)}</p>
+                </div>
+              </div>
+            </li>
+          ))}
+        </ol>
+
+        <div className="mt-20 grid border-t hairline md:mt-28 md:grid-cols-3">
+          {caseStudy.results.map((r, i) => (
+            <Reveal key={i} delay={i * 110}>
+              <div className={`flex flex-col gap-4 border-b hairline py-10 md:border-b-0 md:py-12 md:pe-10 ${i > 0 ? "md:border-s md:ps-10" : ""}`}>
+                <p className="flex items-baseline gap-4">
+                  <span className="num text-[1.5rem] text-faint line-through decoration-1">
+                    {t(r.before, locale)}
+                  </span>
+                  <span className="num text-[clamp(3.5rem,6.5vw,5.5rem)] leading-none text-fg">
+                    {t(r.after, locale)}
+                  </span>
+                </p>
+                <p className="text-[0.9375rem] text-muted">{t(r.label, locale)}</p>
+              </div>
+            </Reveal>
+          ))}
+        </div>
+
+        <p className="mt-10 max-w-xl text-[0.75rem] leading-relaxed text-faint">
+          {t(caseStudy.note, locale)}
+        </p>
       </div>
     </section>
   );

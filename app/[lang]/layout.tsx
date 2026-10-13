@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, IBM_Plex_Sans_Arabic } from "next/font/google";
+import { Geist, Instrument_Serif, Alexandria, IBM_Plex_Sans_Arabic } from "next/font/google";
 import { redirect } from "next/navigation";
 import "../globals.css";
 
@@ -8,11 +8,29 @@ import { person, hero } from "@/content/site";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import PreviewNotice from "@/components/PreviewNotice";
+import Timeline from "@/components/Timeline";
 
-const inter = Inter({
+const geist = Geist({
   subsets: ["latin"],
   display: "swap",
-  variable: "--font-inter",
+  variable: "--font-geist",
+});
+
+/* The accent voice — one italic word per headline, English only. */
+const instrument = Instrument_Serif({
+  subsets: ["latin"],
+  weight: "400",
+  style: ["italic"],
+  display: "swap",
+  variable: "--font-instrument",
+});
+
+/* Arabic display face: geometric, confident, built for large sizes. */
+const alexandria = Alexandria({
+  subsets: ["arabic", "latin"],
+  weight: ["500", "600", "700"],
+  display: "swap",
+  variable: "--font-alexandria",
 });
 
 const plexArabic = IBM_Plex_Sans_Arabic({
@@ -63,10 +81,18 @@ export default async function RootLayout({
   if (!isLocale(lang)) redirect(`/${defaultLocale}`);
 
   return (
-    <html lang={lang} dir={dirOf(lang)} suppressHydrationWarning>
+    <html
+      lang={lang}
+      dir={dirOf(lang)}
+      /* Font variables live on <html> so the theme tokens defined on :root
+         can resolve them. On <body> they would be out of scope. */
+      className={`${geist.variable} ${instrument.variable} ${alexandria.variable} ${plexArabic.variable}`}
+      suppressHydrationWarning
+    >
       <body
-        className={`${inter.variable} ${plexArabic.variable} grain antialiased`}
+        className="grain antialiased"
       >
+        <Timeline />
         <PreviewNotice locale={lang} />
         <Nav locale={lang} />
         <main>{children}</main>

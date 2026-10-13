@@ -32,7 +32,10 @@ export default function Reveal({
           io.disconnect();
         }
       },
-      { rootMargin: "0px 0px -10% 0px", threshold: 0.05 },
+      /* The huge top margin counts anything already scrolled past as
+         "in view". Without it, a fast scroll or an anchor jump can skip an
+         element entirely and leave that section invisible for good. */
+      { rootMargin: "100000px 0px -10% 0px", threshold: 0 },
     );
 
     io.observe(el);

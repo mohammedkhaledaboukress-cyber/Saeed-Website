@@ -1,5 +1,3 @@
-import Link from "next/link";
-
 import { type Locale, t, otherLocale } from "@/lib/i18n";
 import { person, ui, contact } from "@/content/site";
 
@@ -31,13 +29,13 @@ export default function Footer({ locale }: { locale: Locale }) {
           >
             {t(contact.whatsappLabel, locale)}
           </a>
-          <Link
+          <a
             href={`/${other}`}
             hrefLang={other}
             className="transition-colors hover:text-fg"
           >
             {t(ui.langToggle, locale)}
-          </Link>
+          </a>
         </div>
       </div>
 

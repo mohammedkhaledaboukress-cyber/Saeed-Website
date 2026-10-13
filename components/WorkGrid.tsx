@@ -1,15 +1,18 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { type Locale, t } from "@/lib/i18n";
 import { work, workSection, ui } from "@/content/site";
 import VideoLoop from "./VideoLoop";
 import SectionHead from "./SectionHead";
-import Reveal from "./Reveal";
+import { useScrollProgress } from "@/lib/useScrollProgress";
 
 type Item = (typeof work)[number];
 
+/* Each clip is a frame on the strip. Height is fixed per breakpoint and the
+ * width follows the clip's own aspect ratio, so vertical reels and wide
+ * films sit on one baseline like clips on a timeline. */
 function Card({
   locale,
   item,
@@ -22,52 +25,86 @@ function Card({
   index: number;
 }) {
   return (
-    <Reveal delay={Math.min(index, 5) * 70}>
-      <figure className="flex flex-col gap-3">
-        <button
-          type="button"
-          onClick={onOpen}
-          className="group relative block w-full overflow-hidden rounded-lg border hairline transition-colors duration-500 hover:border-fg/20 md:rounded-xl"
-          style={{ aspectRatio: item.aspect.replace("/", " / ") }}
-          aria-label={`${t(item.client, locale)} — ${t(item.format, locale)}`}
-        >
-          <VideoLoop
-            src={item.src}
-            poster={item.poster}
-            soundOnHover
-            className="h-full w-full"
-          />
+    <figure className="flex shrink-0 snap-start flex-col gap-4">
+      <button
+        type="button"
+        onClick={onOpen}
+        className="group relative block h-[62svh] max-h-[640px] min-h-[360px] overflow-hidden rounded-lg bg-raised transition-[transform,box-shadow] duration-500 ease-[var(--ease-out-soft)] hover:-translate-y-1 hover:shadow-[0_24px_60px_-20px_rgba(0,0,0,0.8)] active:scale-[0.99] md:h-[50svh] md:max-h-[560px] md:min-h-[320px] md:rounded-xl"
+        style={{ aspectRatio: item.aspect.replace("/", " / ") }}
+        aria-label={`${t(item.client, locale)} — ${t(item.format, locale)}`}
+      >
+        <VideoLoop
+          src={item.src}
+          poster={item.poster}
+          soundOnHover
+          className="h-full w-full transition-transform duration-700 ease-[var(--ease-out-soft)] group-hover:scale-[1.04]"
+        />
 
-          <span className="num absolute start-3 top-3 rounded-full bg-ink/65 px-2.5 py-1 text-[0.6875rem] text-fg backdrop-blur-md">
+        <span className="absolute inset-0 bg-gradient-to-t from-ink/70 via-transparent to-transparent" />
+
+        <span className="absolute inset-x-4 bottom-4 flex items-end justify-between gap-3 text-start">
+          <span className="num text-[clamp(1.4rem,2.2vw,2rem)] leading-none text-fg">
             {t(item.result, locale)}
           </span>
-
-          <span className="absolute inset-0 flex items-end justify-center pb-4 opacity-0 transition-opacity duration-500 group-hover:opacity-100">
-            <span className="flex items-center gap-1.5 rounded-full bg-ink/70 px-3 py-1.5 text-[0.6875rem] text-muted backdrop-blur-md">
-              <svg viewBox="0 0 24 24" className="h-3 w-3 fill-accent" aria-hidden>
-                <path d="M3 9v6h4l5 4V5L7 9H3zm13.5 3a4.5 4.5 0 00-2.5-4v8a4.5 4.5 0 002.5-4z" />
-              </svg>
-              {t(ui.soundOn, locale)}
-            </span>
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-fg/15 backdrop-blur-md transition-colors duration-300 group-hover:bg-accent">
+            <svg viewBox="0 0 24 24" className="ms-0.5 h-3 w-3 fill-fg transition-colors group-hover:fill-ink" aria-hidden>
+              <path d="M8 5.5v13l11-6.5z" />
+            </svg>
           </span>
-        </button>
+        </span>
+      </button>
 
-        <figcaption className="flex flex-col gap-0.5">
-          <p className="text-[0.8125rem] font-medium">
-            {t(item.client, locale)}
-          </p>
-          <p className="text-[0.75rem] text-faint">
-            {t(item.format, locale)} · {t(item.role, locale)}
-          </p>
-        </figcaption>
-      </figure>
-    </Reveal>
+      <figcaption className="flex flex-col gap-1">
+        <p className="font-mono text-[0.625rem] tracking-wider text-faint" dir="ltr">
+          {`TC 00:${String(index * 2).padStart(2, "0")}:${String((index * 17) % 60).padStart(2, "0")}:00`}
+        </p>
+        <p className="text-[0.875rem] font-medium">{t(item.client, locale)}</p>
+        <p className="text-[0.75rem] text-faint">
+          {t(item.format, locale)} · {t(item.role, locale)}
+        </p>
+      </figcaption>
+    </figure>
   );
 }
 
 export default function WorkGrid({ locale }: { locale: Locale }) {
   const [openId, setOpenId] = useState<string | null>(null);
   const active = work.find((w) => w.id === openId) ?? null;
+  const section = useRef<HTMLElement>(null);
+  const track = useRef<HTMLDivElement>(null);
+  useScrollProgress(section);
+
+  /* Pinning is a wide-screen behaviour. On phones the strip is a native
+     swipe with snap points, which is what thumbs already expect. */
+  useEffect(() => {
+    const el = section.current;
+    const tr = track.current;
+    if (!el || !tr) return;
+    const wide = window.matchMedia("(min-width: 768px)");
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+    const measure = () => {
+      if (!wide.matches || reduced.matches) {
+        el.style.removeProperty("--travel");
+        el.style.removeProperty("height");
+        return;
+      }
+      const travel = Math.max(tr.scrollWidth - tr.clientWidth, 0);
+      el.style.setProperty("--travel", `${travel}px`);
+      el.style.height = `${travel + window.innerHeight}px`;
+    };
+
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(tr);
+    wide.addEventListener("change", measure);
+    window.addEventListener("resize", measure);
+    return () => {
+      ro.disconnect();
+      wide.removeEventListener("change", measure);
+      window.removeEventListener("resize", measure);
+    };
+  }, []);
 
   useEffect(() => {
     document.body.style.overflow = active ? "hidden" : "";
@@ -82,40 +119,35 @@ export default function WorkGrid({ locale }: { locale: Locale }) {
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
-  const vertical = work.filter((w) => w.aspect === "9/16");
-  const wide = work.filter((w) => w.aspect !== "9/16");
-
   return (
-    <section id="work" className="shell scroll-mt-24 py-24 md:py-36">
-      <SectionHead
-        locale={locale}
-        eyebrow={workSection.eyebrow}
-        title={workSection.title}
-        body={workSection.body}
-      />
-
-      <div className="mt-12 grid grid-cols-2 gap-x-4 gap-y-8 md:mt-16 md:grid-cols-3 md:gap-x-6">
-        {vertical.map((item, i) => (
-          <Card
-            key={item.id}
+    <section ref={section} id="work" className="strip relative scroll-mt-0">
+      <div className="flex min-h-[100svh] flex-col justify-center gap-10 py-24 md:sticky md:top-0 md:h-[100svh] md:gap-10 md:overflow-hidden md:pt-16 md:pb-0">
+        <div className="strip-head shell">
+          <SectionHead
             locale={locale}
-            item={item}
-            index={i}
-            onOpen={() => setOpenId(item.id)}
+            title={workSection.title}
+            body={workSection.body}
           />
-        ))}
-      </div>
+        </div>
 
-      <div className="mt-10 grid gap-x-6 gap-y-8 md:mt-14 md:grid-cols-2">
-        {wide.map((item, i) => (
-          <Card
-            key={item.id}
-            locale={locale}
-            item={item}
-            index={i}
-            onOpen={() => setOpenId(item.id)}
-          />
-        ))}
+        <div
+          ref={track}
+          className="strip-track flex snap-x snap-mandatory gap-4 overflow-x-auto px-5 pb-2 [scrollbar-width:none] md:snap-none md:gap-6 md:overflow-visible md:px-[max(calc((100vw-73rem)/2),2.5rem)] [&::-webkit-scrollbar]:hidden"
+        >
+          {work.map((item, i) => (
+            <Card
+              key={item.id}
+              locale={locale}
+              item={item}
+              index={i}
+              onOpen={() => setOpenId(item.id)}
+            />
+          ))}
+        </div>
+
+        <div className="shell hidden md:block">
+          <div className="ruler h-3" />
+        </div>
       </div>
 
       {/* Lightbox */}

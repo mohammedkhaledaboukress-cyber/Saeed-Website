@@ -51,20 +51,20 @@ export const nav = [
 export const hero = {
   eyebrow: { ar: "إنتاج المحتوى", en: "Content Production" } satisfies L,
   headline: {
-    ar: "أبني منظومات\nإنتاج المحتوى.",
-    en: "I build content\noperations.",
+    ar: "أبني منظومات\n*إنتاج المحتوى.*",
+    en: "I build content\n*operations.*",
   } satisfies L,
   body: {
     ar: "أربع سنوات في قيادة الإنتاج لأكبر العلامات الرياضية في السعودية — فرق، وأنظمة، ومخرجات تُحرّك الأرقام.",
     en: "Four years running production for Saudi Arabia's largest fitness brands — the teams, the systems, and the output that moves the numbers.",
   } satisfies L,
-  cta: { ar: "شاهد الريل", en: "Watch the reel" } satisfies L,
+  cta: { ar: "شغّل بالصوت", en: "Play with sound" } satisfies L,
   ctaSecondary: { ar: "تواصل", en: "Get in touch" } satisfies L,
 };
 
 export const reel = {
   eyebrow: { ar: "الريل", en: "Showreel" } satisfies L,
-  title: { ar: "دقيقة واحدة.", en: "One minute." } satisfies L,
+  title: { ar: "دقيقة *واحدة.*", en: "*One* minute." } satisfies L,
   body: {
     ar: "مختارات من أعمال أربع سنوات. الصوت مكتوم — اضغط للتشغيل بالصوت.",
     en: "A cut of four years of work. Muted by default — press for sound.",
@@ -72,7 +72,7 @@ export const reel = {
   /* TODO: replace with the real showreel. 45-75s, 1080p minimum. */
   src: "/video/reel.mp4",
   poster: "/img/reel.jpg",
-  duration: { ar: "00:58", en: "00:58" } satisfies L,
+  duration: { ar: "00:18", en: "00:18" } satisfies L,
 };
 
 /* TODO: every one of these four numbers needs to be real. They are the most
@@ -103,8 +103,8 @@ export const metrics = [
 export const clientsSection = {
   eyebrow: { ar: "العملاء", en: "Clients" } satisfies L,
   title: {
-    ar: "من يثق به.",
-    en: "Who trusts him.",
+    ar: "من *يثق* به.",
+    en: "Who *trusts* him.",
   } satisfies L,
   body: {
     ar: "علاقات طويلة، لا مشاريع متفرقة. أقصر تعاون في القائمة مضى عليه عامان.",
@@ -172,7 +172,7 @@ export const clients = [
 
 export const workSection = {
   eyebrow: { ar: "الأعمال", en: "Selected work" } satisfies L,
-  title: { ar: "المخرجات.", en: "The output." } satisfies L,
+  title: { ar: "*المخرجات.*", en: "The *output.*" } satisfies L,
   body: {
     ar: "يعمل الصوت عند المرور على المقطع. اضغط للعرض بالحجم الكامل.",
     en: "Hover for sound. Press for full size.",
@@ -270,8 +270,8 @@ export const work = [
 export const caseStudy = {
   eyebrow: { ar: "دراسة حالة", en: "Case study" } satisfies L,
   title: {
-    ar: "بناء منظومة محتوى من الصفر.",
-    en: "A content operation, built from zero.",
+    ar: "بناء منظومة محتوى من *الصفر.*",
+    en: "A content operation, built from *zero.*",
   } satisfies L,
   client: {
     ar: "مدرّب سعودي متخصص في تدريب حالات ما قبل السكري والسكري.",
@@ -344,7 +344,7 @@ export const caseStudy = {
 
 export const beforeAfterSection = {
   eyebrow: { ar: "قبل / بعد", en: "Before / after" } satisfies L,
-  title: { ar: "ما يُضيفه المونتاج.", en: "What the edit adds." } satisfies L,
+  title: { ar: "ما *يُضيفه* المونتاج.", en: "What the edit *adds.*" } satisfies L,
   body: {
     ar: "اسحب المقسّم. يسارًا الخام كما خرج من الكاميرا، يمينًا النسخة النهائية.",
     en: "Drag the divider. Raw camera footage on one side, the finished cut on the other.",
@@ -371,7 +371,7 @@ export const beforeAfter = [
 
 export const services = {
   eyebrow: { ar: "طريقة العمل", en: "How he works" } satisfies L,
-  title: { ar: "ما يفعله.", en: "What he does." } satisfies L,
+  title: { ar: "ما *يفعله.*", en: "What he *does.*" } satisfies L,
   does: [
     {
       title: { ar: "بناء فرق الإنتاج", en: "Builds production teams" } satisfies L,
@@ -412,7 +412,7 @@ export const services = {
 
 export const testimonialsSection = {
   eyebrow: { ar: "شهادات", en: "Testimonials" } satisfies L,
-  title: { ar: "بكلماتهم.", en: "In their words." } satisfies L,
+  title: { ar: "*بكلماتهم.*", en: "In their *words.*" } satisfies L,
 };
 
 /* TODO: real quotes, real names, and written permission from each person
@@ -456,7 +456,7 @@ export const testimonials = [
 
 export const about = {
   eyebrow: { ar: "عنه", en: "About" } satisfies L,
-  title: { ar: "المحتوى عملية، لا إلهام.", en: "Content is a process, not inspiration." } satisfies L,
+  title: { ar: "المحتوى عملية، لا *إلهام.*", en: "Content is a process, not *inspiration.*" } satisfies L,
   /* TODO: replace with 80-120 words in Saeed's own voice. His words, lightly
      edited — not polished marketing copy. That is the difference. */
   bio: {
@@ -468,7 +468,7 @@ export const about = {
 
 export const contact = {
   eyebrow: { ar: "تواصل", en: "Contact" } satisfies L,
-  title: { ar: "لنتحدث.", en: "Let's talk." } satisfies L,
+  title: { ar: "*لنتحدث.*", en: "Let's *talk.*" } satisfies L,
   body: {
     ar: "يعمل مع عدد محدود من العملاء في الوقت نفسه. إن كنت تبني شيئًا يحتاج مخرجات حقيقية، تواصل.",
     en: "He works with a small number of clients at a time. If you're building something that needs real output, get in touch.",
@@ -488,6 +488,7 @@ export const ui = {
   } satisfies L,
   soundOn: { ar: "الصوت", en: "Sound" } satisfies L,
   play: { ar: "تشغيل", en: "Play" } satisfies L,
+  mute: { ar: "كتم الصوت", en: "Mute" } satisfies L,
   close: { ar: "إغلاق", en: "Close" } satisfies L,
   before: { ar: "خام", en: "Raw" } satisfies L,
   after: { ar: "نهائي", en: "Final" } satisfies L,

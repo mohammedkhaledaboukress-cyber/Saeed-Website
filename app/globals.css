@@ -3,7 +3,7 @@
 @custom-variant rtl (&:where([dir="rtl"], [dir="rtl"] *));
 @custom-variant ltr (&:where([dir="ltr"], [dir="ltr"] *));
 
-@theme {
+@theme static {
   /* Surfaces — near-black, never pure black. Pure #000 reads flat on OLED. */
   --color-ink: #06070a;
   --color-raised: #0b0d12;
@@ -18,8 +18,11 @@
      rather than gold-plated. Used on numerals, active states and the CTA. */
   --color-accent: #c9b38c;
 
-  --font-latin: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
-  --font-arabic: var(--font-plex-arabic), var(--font-inter), sans-serif;
+  --font-latin: var(--font-geist), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-instrument), ui-serif, Georgia, serif;
+  --font-arabic: var(--font-plex-arabic), var(--font-geist), sans-serif;
+  --font-arabic-display: var(--font-alexandria), var(--font-plex-arabic), sans-serif;
+  --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
 
   --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
 }
@@ -49,6 +52,26 @@
   [dir="rtl"] body {
     font-family: var(--font-arabic);
   }
+
+  [dir="rtl"] .display,
+  [dir="rtl"] .h2 {
+    font-family: var(--font-arabic-display);
+  }
+
+  /* Browser surfaces carry the design too. */
+  html {
+    scrollbar-color: color-mix(in oklab, var(--color-fg) 22%, transparent) var(--color-ink);
+    accent-color: var(--color-accent);
+    caret-color: var(--color-accent);
+  }
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-track { background: var(--color-ink); }
+  ::-webkit-scrollbar-thumb {
+    background: color-mix(in oklab, var(--color-fg) 18%, transparent);
+    border: 3px solid var(--color-ink);
+    border-radius: 99px;
+  }
+  a { text-underline-offset: 0.25em; }
 
   [dir="rtl"] .display,
   [dir="rtl"] .h2,
@@ -113,16 +136,16 @@
    ------------------------------------------------------------------------- */
 @layer components {
   .display {
-    font-size: clamp(2.6rem, 8.2vw, 7rem);
+    font-size: clamp(2.6rem, 7.2vw, 6rem);
     line-height: 0.98;
-    letter-spacing: -0.045em;
+    letter-spacing: -0.04em;
     font-weight: 600;
     text-wrap: balance;
   }
 
   .h2 {
-    font-size: clamp(1.9rem, 4.6vw, 3.6rem);
-    line-height: 1.04;
+    font-size: clamp(2rem, 4.8vw, 3.9rem);
+    line-height: 1.02;
     letter-spacing: -0.035em;
     font-weight: 600;
     text-wrap: balance;
@@ -181,26 +204,45 @@
     }
   }
 
-  /* Scroll-reveal. Short, eased, never bouncy. Nothing moves without reason. */
+  /* Scroll-reveal as a rack focus: things arrive the way a lens finds
+     them — out of focus, then sharp. Short, eased, never bouncy. */
   .reveal {
     opacity: 0;
-    transform: translateY(18px);
+    filter: blur(12px);
+    transform: scale(0.985);
     transition:
-      opacity 0.75s var(--ease-out-soft),
-      transform 0.75s var(--ease-out-soft);
-    will-change: opacity, transform;
+      opacity 0.9s var(--ease-out-soft),
+      filter 0.9s var(--ease-out-soft),
+      transform 0.9s var(--ease-out-soft);
   }
 
   .reveal[data-shown="true"] {
     opacity: 1;
+    filter: none;
     transform: none;
   }
 
   @media (prefers-reduced-motion: reduce) {
     .reveal {
       opacity: 1;
+      filter: none;
       transform: none;
     }
+  }
+
+  /* The accent voice: one italic serif word per headline, at most. */
+  .voice {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-weight: 400;
+    letter-spacing: -0.01em;
+    color: var(--color-accent);
+    padding-inline-end: 0.04em;
+  }
+  [dir="rtl"] .voice {
+    font-family: inherit;
+    font-style: normal;
+    font-weight: inherit;
   }
 
   /* Very faint film grain over the whole page. On a site that is mostly
@@ -214,4 +256,159 @@
     opacity: 0.035;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
   }
+}
+
+/* ---------------------------------------------------------------------------
+   Hero: the reel opens from a letterboxed window to full bleed on scroll.
+   Every value reads --p (0 → 1). At p = 0 the composition is complete.
+   ------------------------------------------------------------------------- */
+.hero {
+  --p: 0;
+  height: 200svh;
+}
+.hero-frame {
+  --top: max(54%, 22rem);
+  --side: 1.25rem;
+  --q: calc(1 - var(--p));
+  clip-path: inset(
+    calc(var(--top) * var(--q)) calc(var(--side) * var(--q))
+      calc(1.25rem * var(--q)) calc(var(--side) * var(--q)) round
+      calc(22px * var(--q))
+  );
+}
+@media (min-width: 768px) {
+  .hero {
+    height: 230svh;
+  }
+  .hero-frame {
+    --top: max(46%, 21rem);
+    --side: max(calc((100% - 73rem) / 2), 2.5rem);
+  }
+}
+.hero-video {
+  transform: scale(calc(1.14 - 0.14 * var(--p)));
+  transform-origin: 50% 60%;
+}
+.hero-shade {
+  background:
+    linear-gradient(to bottom, rgba(6, 7, 10, 0.55), transparent 28%),
+    linear-gradient(to top, rgba(6, 7, 10, 0.75), transparent 45%);
+}
+.hud-late {
+  opacity: clamp(0, calc((var(--p) - 0.6) * 3), 1);
+}
+.hero-copy {
+  transform: translateY(calc(var(--p) * -12vh));
+  opacity: clamp(0, calc(1 - var(--p) * 2.2), 1);
+  filter: blur(calc(var(--p) * 16px));
+}
+.hero-cue {
+  opacity: clamp(0, calc(1 - var(--p) * 5), 1);
+}
+.cue-line {
+  transform-origin: top;
+  animation: cue 2.4s var(--ease-out-soft) infinite;
+}
+@keyframes cue {
+  0% { transform: scaleY(0); opacity: 1; }
+  60% { transform: scaleY(1); opacity: 1; }
+  100% { transform: scaleY(1); opacity: 0; }
+}
+.rec-dot {
+  animation: rec 1.6s steps(1, end) infinite;
+}
+@keyframes rec {
+  50% { opacity: 0.15; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero { height: 100svh; }
+  .hero-video { transform: none; }
+}
+
+/* ---------------------------------------------------------------------------
+   Credits: the numbers roll past like an end-credit crawl turned sideways.
+   ------------------------------------------------------------------------- */
+.credits-track {
+  animation: credits 38s linear infinite;
+}
+[dir="rtl"] .credits-track {
+  animation-name: credits-rtl;
+}
+.credits:hover .credits-track {
+  animation-play-state: paused;
+}
+@keyframes credits {
+  to { transform: translateX(-50%); }
+}
+@keyframes credits-rtl {
+  to { transform: translateX(50%); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .credits-track { animation: none; }
+}
+
+/* ---------------------------------------------------------------------------
+   Filmstrip: vertical scroll drives the strip sideways on wide screens.
+   ------------------------------------------------------------------------- */
+.strip {
+  --p: 0;
+}
+.strip-track {
+  transform: translateX(calc(var(--p) * var(--travel, 0px) * -1));
+}
+[dir="rtl"] .strip-track {
+  transform: translateX(calc(var(--p) * var(--travel, 0px)));
+}
+@media (min-width: 768px) {
+  .strip-head {
+    opacity: clamp(0.25, calc(1 - var(--p) * 2.5), 1);
+  }
+}
+.ruler {
+  background-image: repeating-linear-gradient(
+    to right,
+    color-mix(in oklab, var(--color-fg) 22%, transparent) 0 1px,
+    transparent 1px 12px
+  );
+  mask-image: linear-gradient(to right, transparent, #000 6%, #000 94%, transparent);
+}
+
+/* Timeline playhead fixed to the top of the window. */
+.playhead {
+  transform-origin: left;
+  transform: scaleX(var(--page, 0));
+}
+[dir="rtl"] .playhead {
+  transform-origin: right;
+}
+
+/* Testimonial progress and quote entrance. */
+.bar-run {
+  animation: bar-run linear forwards;
+}
+@keyframes bar-run {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+.quote-in {
+  animation: quote-in 0.8s var(--ease-out-soft) both;
+}
+@keyframes quote-in {
+  from { opacity: 0; filter: blur(8px); transform: translateY(8px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .bar-run { animation: none; transform: scaleX(1); }
+  .quote-in { animation: none; }
+}
+
+/* Unlayered on purpose: when the page is embedded in a host document whose
+   own (unlayered) reset sets a body font, layered rules would lose to it. */
+body {
+  font-family: var(--font-latin);
+  font-size: 16px;
+  background: var(--color-ink);
+  color: var(--color-fg);
+}
+[dir="rtl"] body {
+  font-family: var(--font-arabic);
 }

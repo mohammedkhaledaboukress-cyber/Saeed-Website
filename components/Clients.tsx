@@ -13,12 +13,13 @@ export default function Clients({ locale }: { locale: Locale }) {
         body={clientsSection.body}
       />
 
-      <ul className="mt-12 md:mt-16">
+      <ul className="isolate mt-12 md:mt-16">
         {clients.map((c, i) => (
           <Reveal key={c.id} delay={Math.min(i, 4) * 60}>
-            <li className="group grid grid-cols-1 items-baseline gap-x-6 gap-y-2 border-t hairline py-6 transition-colors duration-500 last:border-b md:grid-cols-12 md:py-7">
+            <li className="group relative grid grid-cols-1 items-baseline gap-x-6 gap-y-2 border-t hairline py-7 last:border-b md:grid-cols-12 md:py-9">
+              <span aria-hidden className="absolute inset-0 -z-10 origin-bottom scale-y-0 bg-raised-2/70 transition-transform duration-500 ease-[var(--ease-out-soft)] group-hover:scale-y-100" />
               <div className="md:col-span-4">
-                <p className="h3">{t(c.name, locale)}</p>
+                <p className="text-[clamp(1.35rem,2.2vw,1.9rem)] leading-tight font-semibold tracking-[-0.02em] transition-transform duration-500 ease-[var(--ease-out-soft)] group-hover:translate-x-2 rtl:tracking-normal rtl:group-hover:-translate-x-2">{t(c.name, locale)}</p>
               </div>
 
               <div className="md:col-span-5">
@@ -28,7 +29,7 @@ export default function Clients({ locale }: { locale: Locale }) {
               </div>
 
               <div className="md:col-span-2">
-                <p className="num text-[0.8125rem] text-accent">
+                <p className="num text-[1rem] text-accent">
                   {t(c.growth, locale)}
                 </p>
               </div>
