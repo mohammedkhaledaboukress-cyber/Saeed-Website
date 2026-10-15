@@ -2,6 +2,7 @@ import { type Locale, t } from "@/lib/i18n";
 import { caseStudy } from "@/content/site";
 import Reveal from "./Reveal";
 import Rich from "./Rich";
+import OutputChart from "./OutputChart";
 
 /* The story nobody else can tell, told as a build: each step pins and the
  * next one stacks over it, so the operation visibly assembles as you scroll.
@@ -54,7 +55,16 @@ export default function CaseStudy({ locale }: { locale: Locale }) {
           ))}
         </ol>
 
-        <div className="mt-20 grid border-t hairline md:mt-28 md:grid-cols-3">
+        <div className="mt-20 md:mt-28">
+          <OutputChart
+            locale={locale}
+            data={caseStudy.output}
+            label={caseStudy.outputLabel}
+            monthLabel={caseStudy.monthLabel}
+          />
+        </div>
+
+        <div className="mt-14 grid border-t hairline md:mt-20 md:grid-cols-3">
           {caseStudy.results.map((r, i) => (
             <Reveal key={i} delay={i * 110}>
               <div className={`flex flex-col gap-4 border-b hairline py-10 md:border-b-0 md:py-12 md:pe-10 ${i > 0 ? "md:border-s md:ps-10" : ""}`}>

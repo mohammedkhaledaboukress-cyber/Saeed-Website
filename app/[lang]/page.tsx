@@ -1,7 +1,7 @@
 import { defaultLocale, isLocale } from "@/lib/i18n";
 
 import Hero from "@/components/Hero";
-import Credits from "@/components/Credits";
+import Statement from "@/components/Statement";
 import WorkGrid from "@/components/WorkGrid";
 import CaseStudy from "@/components/CaseStudy";
 import BeforeAfter from "@/components/BeforeAfter";
@@ -24,8 +24,8 @@ export default async function Page({
   return (
     <>
       <Hero locale={locale} />
-      <Credits locale={locale} />
       <WorkGrid locale={locale} />
+      <Statement locale={locale} />
       <CaseStudy locale={locale} />
       <BeforeAfter locale={locale} />
       <Clients locale={locale} />

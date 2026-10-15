@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { flushSync } from "react-dom";
 
 import { type Locale, t } from "@/lib/i18n";
 import { work, workSection, ui } from "@/content/site";
@@ -24,11 +25,46 @@ function Card({
   onOpen: () => void;
   index: number;
 }) {
+  const btn = useRef<HTMLButtonElement>(null);
+  const tc = useRef<HTMLSpanElement>(null);
+
+  /* Skimming: on a mouse, moving across the clip scrubs through it, the way
+     an editor skims media in a bin. Touch keeps tap-to-open. */
+  const skim = (e: React.PointerEvent<HTMLButtonElement>) => {
+    if (e.pointerType !== "mouse") return;
+    const b = btn.current;
+    const v = b?.querySelector("video");
+    if (!b || !v) return;
+    const r = b.getBoundingClientRect();
+    const f = Math.min(Math.max((e.clientX - r.left) / r.width, 0), 1);
+    b.style.setProperty("--x", `${f * 100}%`);
+    b.classList.add("skimming");
+    if (v.preload !== "auto") v.preload = "auto";
+    const d = Number.isFinite(v.duration) ? v.duration : 0;
+    if (d) {
+      if (!v.paused) v.pause();
+      v.currentTime = f * d;
+    }
+    if (tc.current) {
+      const s = f * d;
+      tc.current.textContent = `00:${String(Math.floor(s)).padStart(2, "0")}:${String(Math.floor((s % 1) * 25)).padStart(2, "0")}`;
+    }
+  };
+  const endSkim = () => {
+    const b = btn.current;
+    b?.classList.remove("skimming");
+    void b?.querySelector("video")?.play().catch(() => {});
+  };
+
   return (
     <figure className="flex shrink-0 snap-start flex-col gap-4">
       <button
+        ref={btn}
         type="button"
+        data-clip={item.id}
         onClick={onOpen}
+        onPointerMove={skim}
+        onPointerLeave={endSkim}
         className="group relative block h-[62svh] max-h-[640px] min-h-[360px] overflow-hidden rounded-lg bg-raised transition-[transform,box-shadow] duration-500 ease-[var(--ease-out-soft)] hover:-translate-y-1 hover:shadow-[0_24px_60px_-20px_rgba(0,0,0,0.8)] active:scale-[0.99] md:h-[50svh] md:max-h-[560px] md:min-h-[320px] md:rounded-xl"
         style={{ aspectRatio: item.aspect.replace("/", " / ") }}
         aria-label={`${t(item.client, locale)} — ${t(item.format, locale)}`}
@@ -41,6 +77,15 @@ function Card({
         />
 
         <span className="absolute inset-0 bg-gradient-to-t from-ink/70 via-transparent to-transparent" />
+
+        {/* Skim playhead */}
+        <span aria-hidden className="skim-head pointer-events-none absolute inset-y-0 w-px bg-accent">
+          <span
+            ref={tc}
+            dir="ltr"
+            className="absolute top-3 -translate-x-1/2 rounded bg-ink/80 px-1.5 py-0.5 font-mono text-[0.625rem] text-fg backdrop-blur"
+          />
+        </span>
 
         <span className="absolute inset-x-4 bottom-4 flex items-end justify-between gap-3 text-start">
           <span className="num text-[clamp(1.4rem,2.2vw,2rem)] leading-none text-fg">
@@ -70,6 +115,38 @@ function Card({
 export default function WorkGrid({ locale }: { locale: Locale }) {
   const [openId, setOpenId] = useState<string | null>(null);
   const active = work.find((w) => w.id === openId) ?? null;
+
+  /* The clip grows out of its place on the strip into the player and goes
+     back on close (View Transitions). Browsers without it just cut. */
+  const swap = (id: string | null, update: () => void) => {
+    const doc = document as Document & {
+      startViewTransition?: (cb: () => void) => { finished: Promise<void> };
+    };
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const card = id
+      ? document.querySelector<HTMLElement>(`[data-clip="${id}"]`)
+      : null;
+    if (!doc.startViewTransition || reduced || !card) {
+      update();
+      return;
+    }
+    const opening = openId === null;
+    // Only one element may carry the name at a time: the card before
+    // opening, the player while open.
+    if (opening) card.style.setProperty("view-transition-name", "clip");
+    const vt = doc.startViewTransition(() => {
+      if (opening) card.style.removeProperty("view-transition-name");
+      flushSync(update);
+      if (!opening) card.style.setProperty("view-transition-name", "clip");
+    });
+    void vt.finished.finally(() => card.style.removeProperty("view-transition-name"));
+  };
+  const open = (id: string) => swap(id, () => setOpenId(id));
+  const close = () => {
+    if (!openId) return;
+    const id = openId;
+    swap(id, () => setOpenId(null));
+  };
   const section = useRef<HTMLElement>(null);
   const track = useRef<HTMLDivElement>(null);
   useScrollProgress(section);
@@ -114,10 +191,10 @@ export default function WorkGrid({ locale }: { locale: Locale }) {
   }, [active]);
 
   useEffect(() => {
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpenId(null);
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && close();
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, []);
+  });
 
   return (
     <section ref={section} id="work" className="strip relative scroll-mt-0">
@@ -140,7 +217,7 @@ export default function WorkGrid({ locale }: { locale: Locale }) {
               locale={locale}
               item={item}
               index={i}
-              onOpen={() => setOpenId(item.id)}
+              onOpen={() => open(item.id)}
             />
           ))}
         </div>
@@ -156,12 +233,12 @@ export default function WorkGrid({ locale }: { locale: Locale }) {
           role="dialog"
           aria-modal="true"
           className="fixed inset-0 z-[95] flex items-center justify-center bg-ink/92 p-4 backdrop-blur-xl md:p-10"
-          onClick={() => setOpenId(null)}
+          onClick={close}
         >
           <button
             type="button"
             aria-label={t(ui.close, locale)}
-            onClick={() => setOpenId(null)}
+            onClick={close}
             className="absolute end-5 top-5 flex h-10 w-10 items-center justify-center rounded-full border hairline text-muted transition-colors hover:text-fg"
           >
             <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden>
@@ -186,8 +263,11 @@ export default function WorkGrid({ locale }: { locale: Locale }) {
               autoPlay
               loop
               playsInline
-              className="max-h-[78svh] w-auto self-center rounded-xl border hairline"
-              style={{ aspectRatio: active.aspect.replace("/", " / ") }}
+              className="max-h-[78svh] w-auto max-w-full self-center rounded-xl"
+              style={{
+                aspectRatio: active.aspect.replace("/", " / "),
+                viewTransitionName: "clip",
+              }}
             />
             <figcaption className="self-center text-center">
               <p className="text-sm font-medium">{t(active.client, locale)}</p>

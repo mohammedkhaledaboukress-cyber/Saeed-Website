@@ -8,10 +8,20 @@ import { nav, person, ui, contact } from "@/content/site";
 
 export default function Nav({ locale }: { locale: Locale }) {
   const [scrolled, setScrolled] = useState(false);
+  const [hidden, setHidden] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 24);
+    let last = window.scrollY;
+    const onScroll = () => {
+      const y = window.scrollY;
+      setScrolled(y > 24);
+      // Tuck away while reading down; come back the moment they scroll up.
+      if (Math.abs(y - last) > 6) {
+        setHidden(y > last && y > 240);
+        last = y;
+      }
+    };
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
@@ -37,7 +47,9 @@ export default function Nav({ locale }: { locale: Locale }) {
   return (
     <>
       <header
-        className={`fixed inset-x-0 top-0 z-50 transition-colors duration-500 ${
+        className={`fixed inset-x-0 top-0 z-50 transition-[background-color,border-color,transform] duration-500 ease-[var(--ease-out-soft)] ${
+          hidden && !menuOpen ? "nav-hidden" : ""
+        } ${
           scrolled
             ? "border-b hairline bg-ink/70 backdrop-blur-xl backdrop-saturate-150"
             : "border-b border-transparent"

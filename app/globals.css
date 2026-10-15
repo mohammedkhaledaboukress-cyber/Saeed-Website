@@ -12,7 +12,7 @@
   /* Text — a three-step hierarchy and no more. */
   --color-fg: #f5f5f7;
   --color-muted: #9b9ba4;
-  --color-faint: #5e6068;
+  --color-faint: #7a7d86; /* 4.9:1 on ink — small text stays readable */
 
   /* One accent. Champagne, deliberately desaturated so it reads expensive
      rather than gold-plated. Used on numerals, active states and the CTA. */
@@ -204,28 +204,25 @@
     }
   }
 
-  /* Scroll-reveal as a rack focus: things arrive the way a lens finds
-     them — out of focus, then sharp. Short, eased, never bouncy. */
+  /* Scroll-reveal. Deliberately quiet: a short rise and fade, used on
+     headings and blocks, never on every line. The page's one big authored
+     moment is the hero; everything else stays out of its way. */
   .reveal {
     opacity: 0;
-    filter: blur(12px);
-    transform: scale(0.985);
+    transform: translateY(14px);
     transition:
-      opacity 0.9s var(--ease-out-soft),
-      filter 0.9s var(--ease-out-soft),
-      transform 0.9s var(--ease-out-soft);
+      opacity 0.7s var(--ease-out-soft),
+      transform 0.7s var(--ease-out-soft);
   }
 
   .reveal[data-shown="true"] {
     opacity: 1;
-    filter: none;
     transform: none;
   }
 
   @media (prefers-reduced-motion: reduce) {
     .reveal {
       opacity: 1;
-      filter: none;
       transform: none;
     }
   }
@@ -326,26 +323,56 @@
 }
 
 /* ---------------------------------------------------------------------------
-   Credits: the numbers roll past like an end-credit crawl turned sideways.
+   Statement: one sentence, set huge; words light up as you scroll through.
    ------------------------------------------------------------------------- */
-.credits-track {
-  animation: credits 38s linear infinite;
+.statement {
+  --p: 0;
+  height: 160svh;
 }
-[dir="rtl"] .credits-track {
-  animation-name: credits-rtl;
-}
-.credits:hover .credits-track {
-  animation-play-state: paused;
-}
-@keyframes credits {
-  to { transform: translateX(-50%); }
-}
-@keyframes credits-rtl {
-  to { transform: translateX(50%); }
+.statement .w {
+  opacity: clamp(0.16, calc(var(--p) * 1.35 * var(--n) - var(--i) + 0.6), 1);
+  transition: opacity 0.12s linear;
 }
 @media (prefers-reduced-motion: reduce) {
-  .credits-track { animation: none; }
+  .statement { height: auto; }
+  .statement .w { opacity: 1; }
 }
+
+/* Skimming: move across a clip to scrub it, the way an editor skims media. */
+.skim-head {
+  opacity: 0;
+  transition: opacity 0.2s;
+  inset-inline-start: auto;
+  left: var(--x, 50%);
+}
+.skimming .skim-head { opacity: 1; }
+
+/* Output chart draws itself once it comes into view. */
+.draw-line {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  transition: stroke-dashoffset 1.8s var(--ease-out-soft) 0.2s;
+}
+[data-drawn="true"] .draw-line { stroke-dashoffset: 0; }
+.draw-dot { opacity: 0; transition: opacity 0.4s 1.7s; }
+[data-drawn="true"] .draw-dot { opacity: 1; }
+@media (prefers-reduced-motion: reduce) {
+  .draw-line { stroke-dashoffset: 0; transition: none; }
+  .draw-dot { opacity: 1; transition: none; }
+}
+
+/* Clip → full screen continuity (View Transitions, where supported). */
+::view-transition-group(clip) {
+  animation-duration: 0.55s;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.35s;
+}
+
+/* Nav tucks away while reading down, returns on the way up. */
+.nav-hidden { transform: translateY(-100%); }
 
 /* ---------------------------------------------------------------------------
    Filmstrip: vertical scroll drives the strip sideways on wide screens.

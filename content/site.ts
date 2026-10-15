@@ -100,6 +100,13 @@ export const metrics = [
   },
 ];
 
+/* TODO: the same figures as `metrics`, written as one sentence. Keep the two
+   in step when the real numbers arrive. */
+export const statement = {
+  ar: "أربع سنوات. أكثر من 180 مليون مشاهدة. 120 مقطعًا كل شهر، يُنتجها فريق من 14 شخصًا بناه ويديره بنفسه.",
+  en: "Four years. 180M+ views. 120 videos every month, shipped by a team of 14 he built and runs himself.",
+} satisfies L;
+
 export const clientsSection = {
   eyebrow: { ar: "العملاء", en: "Clients" } satisfies L,
   title: {
@@ -318,6 +325,11 @@ export const caseStudy = {
       } satisfies L,
     },
   ],
+  /* TODO: real monthly output, first month with him to now. The chart draws
+     whatever is here; twelve points reads well. */
+  output: [4, 4, 6, 7, 9, 12, 14, 17, 21, 23, 26, 28],
+  outputLabel: { ar: "المقاطع المنشورة شهريًا", en: "Videos published per month" } satisfies L,
+  monthLabel: { ar: "الشهر", en: "Month" } satisfies L,
   /* TODO: real before/after figures. */
   results: [
     {
